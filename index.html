@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dt. Malak Atwat | Clinical Dietitian Portfolio</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Tailwind Config for Custom Colors/Fonts -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['Georgia', 'Cambria', 'Times New Roman', 'Times', 'serif'],
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'bounce-slow': 'bounce 3s infinite',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #0f766e; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #0d9488; 
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- Icons (Inline SVGs to ensure standalone functionality) ---
+        const Icons = {
+            Menu: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="18" x2="20" y2="18"/></svg>,
+            X: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+            Instagram: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>,
+            Linkedin: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>,
+            Mail: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>,
+            MapPin: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>,
+            Mic: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>,
+            Stethoscope: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/></svg>,
+            Heart: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>,
+            Award: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>,
+            ChevronRight: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polyline points="9 18 15 12 9 6"/></svg>,
+            Apple: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z"/><path d="M10 2c1 .5 2 2 2 5"/></svg>,
+            PlayCircle: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+        };
+
+        const Portfolio = () => {
+          const [isScrolled, setIsScrolled] = useState(false);
+          const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+          useEffect(() => {
+            const handleScroll = () => {
+              setIsScrolled(window.scrollY > 50);
+            };
+            window.addEventListener('scroll', handleScroll);
+            return () => window.removeEventListener('scroll', handleScroll);
+          }, []);
+
+          const navLinks = [
+            { name: 'Home', href: '#home' },
+            { name: 'About', href: '#about' },
+            { name: 'Expertise', href: '#expertise' },
+            { name: 'Podcast', href: '#podcast' },
+            { name: 'Contact', href: '#contact' },
+          ];
+
+          return (
+            <div className="font-sans text-gray-700 bg-slate-50 selection:bg-teal-100 selection:text-teal-900">
+              
+              {/* Navigation */}
+              <nav 
+                className={`fixed w-full z-50 transition-all duration-300 ${
+                  isScrolled ? 'bg-white/90 backdrop-blur-md shadow-sm py-3' : 'bg-transparent py-5'
+                }`}
+              >
+                <div className="container mx-auto px-6 flex justify-between items-center">
+                  <a href="#" className="text-2xl font-serif text-teal-800 tracking-tight flex items-center gap-2">
+                    Dt. Malak Atwat
+                  </a>
+
+                  {/* Desktop Nav */}
+                  <div className="hidden md:flex space-x-8 items-center">
+                    {navLinks.map((link) => (
+                      <a 
+                        key={link.name} 
+                        href={link.href} 
+                        className="text-sm font-medium text-gray-600 hover:text-teal-600 transition-colors uppercase tracking-wider"
+                      >
+                        {link.name}
+                      </a>
+                    ))}
+                    <a 
+                      href="#contact" 
+                      className="bg-teal-700 hover:bg-teal-800 text-white px-5 py-2 rounded-full text-sm font-medium transition-all shadow-md hover:shadow-lg"
+                    >
+                      Book Consultation
+                    </a>
+                  </div>
+
+                  {/* Mobile Menu Button */}
+                  <button 
+                    className="md:hidden text-gray-600"
+                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                  >
+                    {isMobileMenuOpen ? <Icons.X size={24} /> : <Icons.Menu size={24} />}
+                  </button>
+                </div>
+
+                {/* Mobile Nav Dropdown */}
+                {isMobileMenuOpen && (
+                  <div className="md:hidden absolute top-full left-0 w-full bg-white shadow-lg border-t border-gray-100 py-4 px-6 flex flex-col space-y-4">
+                    {navLinks.map((link) => (
+                      <a 
+                        key={link.name} 
+                        href={link.href}
+                        className="text-gray-600 hover:text-teal-600 font-medium"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        {link.name}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </nav>
+
+              {/* Hero Section */}
+              <section id="home" className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+                <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-teal-50 rounded-full blur-3xl opacity-50"></div>
+                <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-emerald-50 rounded-full blur-3xl opacity-50"></div>
+
+                <div className="container mx-auto px-6 relative z-10">
+                  <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+                    
+                    <div className="lg:w-1/2 space-y-6 text-center lg:text-left">
+                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-50 border border-teal-100 text-teal-700 text-xs font-semibold tracking-wide uppercase">
+                        <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse"></span>
+                        PSL License: 7203960
+                      </div>
+                      
+                      <h1 className="text-4xl lg:text-6xl font-serif text-gray-900 leading-tight">
+                        Scientific Nutrition for a <br/>
+                        <span className="text-teal-700 italic">Healthier Life.</span>
+                      </h1>
+                      
+                      <p className="text-lg text-gray-600 leading-relaxed max-w-xl mx-auto lg:mx-0">
+                        Dr. Malak Atwat is a Clinical Dietitian specializing in Bariatric, Metabolic, and Chronic Diseases. Helping you build a sustainable relationship with food without restrictions.
+                      </p>
+                      
+                      <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
+                        <a 
+                          href="#contact" 
+                          className="bg-teal-700 text-white px-8 py-3 rounded-full font-medium hover:bg-teal-800 transition-all flex items-center justify-center gap-2 shadow-lg shadow-teal-700/20"
+                        >
+                          Start Your Journey
+                        </a>
+                        <a 
+                          href="https://www.instagram.com/dietitian_malak_?igsh=enFteGNnZmN2bHhv" 
+                          target="_blank"
+                          rel="noreferrer"
+                          className="bg-white text-gray-700 border border-gray-200 px-8 py-3 rounded-full font-medium hover:bg-gray-50 transition-all flex items-center justify-center gap-2"
+                        >
+                          <Icons.Instagram size={18} />
+                          Follow on Instagram
+                        </a>
+                      </div>
+                    </div>
+
+                    <div className="lg:w-1/2 relative">
+                      <div className="relative z-10 rounded-2xl overflow-hidden shadow-2xl border-8 border-white">
+                        <div className="bg-slate-200 aspect-[4/5] w-full relative flex items-center justify-center overflow-hidden">
+                           <div className="absolute inset-0 bg-gradient-to-tr from-teal-100 to-slate-100"></div>
+                           <img 
+                            src="https://placehold.co/600x750/e0f2fe/1e293b?text=Dr.+Malak+Photo" 
+                            alt="Dt. Malak Atwat" 
+                            className="w-full h-full object-cover opacity-0 relative z-10"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.nextSibling.style.display = 'flex';
+                            }}
+                           />
+                           <div className="absolute inset-0 flex flex-col items-center justify-center text-teal-800/30">
+                              <Icons.Stethoscope size={64} className="mb-4" />
+                              <span className="font-serif text-2xl">Dt. Malak Atwat</span>
+                           </div>
+                        </div>
+                      </div>
+
+                      <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-xl shadow-xl flex items-center gap-3 animate-bounce-slow">
+                         <div className="bg-teal-100 p-2 rounded-full text-teal-700">
+                            <Icons.Award size={24} />
+                         </div>
+                         <div>
+                            <p className="text-xs text-gray-500 font-semibold uppercase">Experience</p>
+                            <p className="font-bold text-gray-800">Clinical Expert</p>
+                         </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* About Brief */}
+              <section id="about" className="py-20 bg-white">
+                <div className="container mx-auto px-6">
+                  <div className="flex flex-col md:flex-row items-center gap-12">
+                    <div className="md:w-1/3">
+                       <div className="bg-teal-50 rounded-2xl p-8 border border-teal-100">
+                          <h3 className="text-xl font-serif text-teal-800 mb-4">Credentials</h3>
+                          <ul className="space-y-4">
+                            <li className="flex items-start gap-3">
+                              <div className="mt-1 bg-white p-1 rounded-full shadow-sm text-teal-600">
+                                <Icons.Award size={14} />
+                              </div>
+                              <div>
+                                <p className="font-bold text-gray-800">Licensed Clinical Dietitian</p>
+                                <p className="text-sm text-gray-500">PSL 7203960</p>
+                              </div>
+                            </li>
+                            <li className="flex items-start gap-3">
+                              <div className="mt-1 bg-white p-1 rounded-full shadow-sm text-teal-600">
+                                <Icons.MapPin size={14} />
+                              </div>
+                              <div>
+                                <p className="font-bold text-gray-800">CosmeSurge</p>
+                                <p className="text-sm text-gray-500">Jumeirah, Dubai & Sharjah</p>
+                              </div>
+                            </li>
+                            <li className="flex items-start gap-3">
+                              <div className="mt-1 bg-white p-1 rounded-full shadow-sm text-teal-600">
+                                <Icons.Heart size={14} />
+                              </div>
+                              <div>
+                                <p className="font-bold text-gray-800">NMC Healthcare Group</p>
+                                <p className="text-sm text-gray-500">Clinical Team Member</p>
+                              </div>
+                            </li>
+                          </ul>
+                       </div>
+                    </div>
+                    <div className="md:w-2/3">
+                      <h2 className="text-3xl font-serif text-gray-900 mb-6">About Dr. Malak</h2>
+                      <p className="text-gray-600 leading-relaxed mb-6">
+                        With a deep understanding of metabolic health and clinical nutrition, Dr. Malak Atwat bridges the gap between complex medical science and daily eating habits. She believes that true health isn't about temporary diets but about understanding your body's unique signals.
+                      </p>
+                      <p className="text-gray-600 leading-relaxed">
+                        As a TV guest expert and the host of the <strong>Hamasat Podcast</strong>, she is dedicated to debunking nutrition myths—from "detox juices" to sugar addiction—and empowering her patients with knowledge that lasts a lifetime.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* Expertise / Services */}
+              <section id="expertise" className="py-20 bg-slate-50">
+                <div className="container mx-auto px-6">
+                  <div className="text-center mb-16">
+                    <span className="text-teal-600 font-semibold tracking-wider text-sm uppercase">Clinical Focus</span>
+                    <h2 className="text-3xl lg:text-4xl font-serif text-gray-900 mt-2">Areas of Expertise</h2>
+                  </div>
+
+                  <div className="grid md:grid-cols-3 gap-8">
+                    {/* Card 1 */}
+                    <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 group">
+                      <div className="w-12 h-12 bg-teal-50 rounded-xl flex items-center justify-center text-teal-600 mb-6 group-hover:bg-teal-600 group-hover:text-white transition-colors">
+                        <Icons.Stethoscope size={24} />
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-800 mb-3">Bariatric Nutrition</h3>
+                      <p className="text-gray-500 leading-relaxed">
+                        Specialized pre-and post-operative nutritional guidance for bariatric surgery patients to ensure recovery and sustainable weight maintenance.
+                      </p>
+                    </div>
+
+                    {/* Card 2 */}
+                    <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 group">
+                      <div className="w-12 h-12 bg-teal-50 rounded-xl flex items-center justify-center text-teal-600 mb-6 group-hover:bg-teal-600 group-hover:text-white transition-colors">
+                        <Icons.Apple size={24} />
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-800 mb-3">Metabolic Diseases</h3>
+                      <p className="text-gray-500 leading-relaxed">
+                        Evidence-based management for insulin resistance, diabetes, and metabolic syndromes through targeted dietary interventions.
+                      </p>
+                    </div>
+
+                    {/* Card 3 */}
+                    <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 group">
+                      <div className="w-12 h-12 bg-teal-50 rounded-xl flex items-center justify-center text-teal-600 mb-6 group-hover:bg-teal-600 group-hover:text-white transition-colors">
+                        <Icons.Heart size={24} />
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-800 mb-3">Chronic Disease Mgmt</h3>
+                      <p className="text-gray-500 leading-relaxed">
+                        Holistic nutritional support for managing chronic conditions, reducing inflammation, and improving overall quality of life.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* Podcast & Media Section */}
+              <section id="podcast" className="py-20 relative overflow-hidden bg-teal-900 text-white">
+                <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '30px 30px' }}></div>
+                
+                <div className="container mx-auto px-6 relative z-10">
+                  <div className="flex flex-col lg:flex-row items-center gap-12">
+                     <div className="lg:w-1/2">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-800 border border-teal-700 text-teal-200 text-xs font-semibold tracking-wide uppercase mb-6">
+                          <Icons.Mic size={12} />
+                          Now Streaming
+                        </div>
+                        <h2 className="text-3xl lg:text-5xl font-serif mb-6 leading-tight">
+                          Hamasat Podcast <br/>
+                          <span className="text-teal-300">Whispers of Health</span>
+                        </h2>
+                        <p className="text-teal-100 text-lg mb-8 leading-relaxed">
+                          Join Dr. Malak as she explores the truths behind nutrition trends. From understanding sugar addiction vs. habit to the impact of stress on your gut health.
+                        </p>
+                        
+                        <div className="flex flex-wrap gap-4">
+                          <a href="#" className="flex items-center gap-3 bg-white text-teal-900 px-6 py-3 rounded-full font-bold hover:bg-gray-100 transition-colors">
+                            <Icons.PlayCircle size={20} />
+                            Listen Now
+                          </a>
+                          <a href="#" className="flex items-center gap-3 border border-teal-700 text-teal-100 px-6 py-3 rounded-full font-medium hover:bg-teal-800 transition-colors">
+                            Watch on YouTube
+                          </a>
+                        </div>
+                     </div>
+                     
+                     <div className="lg:w-1/2">
+                        <div className="grid gap-4">
+                           {/* Episode Card 1 */}
+                           <div className="bg-teal-800/50 backdrop-blur-sm p-4 rounded-xl border border-teal-700/50 flex items-center gap-4 hover:bg-teal-800 transition-colors cursor-pointer">
+                              <div className="bg-teal-600 w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0">
+                                 <span className="font-serif italic text-lg">01</span>
+                              </div>
+                              <div>
+                                 <h4 className="font-bold text-white">Sugar: Addiction vs. Habit?</h4>
+                                 <p className="text-sm text-teal-200">How to know the difference and take control.</p>
+                              </div>
+                              <Icons.ChevronRight className="ml-auto text-teal-400" />
+                           </div>
+                           
+                           {/* Episode Card 2 */}
+                           <div className="bg-teal-800/50 backdrop-blur-sm p-4 rounded-xl border border-teal-700/50 flex items-center gap-4 hover:bg-teal-800 transition-colors cursor-pointer">
+                              <div className="bg-teal-600 w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0">
+                                 <span className="font-serif italic text-lg">02</span>
+                              </div>
+                              <div>
+                                 <h4 className="font-bold text-white">Signs Your Body Needs Protein</h4>
+                                 <p className="text-sm text-teal-200">Are you getting enough for your metabolic type?</p>
+                              </div>
+                              <Icons.ChevronRight className="ml-auto text-teal-400" />
+                           </div>
+
+                           {/* Episode Card 3 */}
+                           <div className="bg-teal-800/50 backdrop-blur-sm p-4 rounded-xl border border-teal-700/50 flex items-center gap-4 hover:bg-teal-800 transition-colors cursor-pointer">
+                              <div className="bg-teal-600 w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0">
+                                 <span className="font-serif italic text-lg">03</span>
+                              </div>
+                              <div>
+                                 <h4 className="font-bold text-white">The Truth About Detox Juices</h4>
+                                 <p className="text-sm text-teal-200">Debunking myths with clinical science.</p>
+                              </div>
+                              <Icons.ChevronRight className="ml-auto text-teal-400" />
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* Featured Insight / Philosophy */}
+              <section className="py-20 bg-white">
+                <div className="container mx-auto px-6 text-center max-w-4xl">
+                   <div className="mb-8 flex justify-center">
+                      <div className="bg-orange-50 text-orange-600 p-3 rounded-full">
+                         <Icons.Heart size={32} />
+                      </div>
+                   </div>
+                   <h2 className="text-3xl lg:text-4xl font-serif text-gray-900 mb-6">
+                     "Health is not just about what you eat. It's about how you think and how you feel."
+                   </h2>
+                   <p className="text-gray-500 text-lg mb-8">
+                     Dr. Malak emphasizes the connection between stress and nutrition. 
+                     Understanding that stress affects nutrition, and nutrition affects stress, is the key to breaking the cycle of emotional eating.
+                   </p>
+                   <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pt-8 border-t border-gray-100">
+                      <div>
+                         <p className="text-3xl font-bold text-teal-700 mb-1">2.9k+</p>
+                         <p className="text-sm text-gray-500 uppercase tracking-wide">Community</p>
+                      </div>
+                      <div>
+                         <p className="text-3xl font-bold text-teal-700 mb-1">500+</p>
+                         <p className="text-sm text-gray-500 uppercase tracking-wide">Resources Shared</p>
+                      </div>
+                      <div>
+                         <p className="text-3xl font-bold text-teal-700 mb-1">TV</p>
+                         <p className="text-sm text-gray-500 uppercase tracking-wide">Guest Expert</p>
+                      </div>
+                      <div>
+                         <p className="text-3xl font-bold text-teal-700 mb-1">100%</p>
+                         <p className="text-sm text-gray-500 uppercase tracking-wide">Science Based</p>
+                      </div>
+                   </div>
+                </div>
+              </section>
+
+              {/* Contact Section */}
+              <section id="contact" className="py-20 bg-slate-50">
+                <div className="container mx-auto px-6">
+                  <div className="flex flex-col lg:flex-row gap-12 bg-white rounded-3xl shadow-xl overflow-hidden">
+                    
+                    {/* Contact Info */}
+                    <div className="lg:w-2/5 bg-teal-700 text-white p-12 flex flex-col justify-between">
+                       <div>
+                         <h2 className="text-3xl font-serif mb-6">Get in Touch</h2>
+                         <p className="text-teal-100 mb-8 leading-relaxed">
+                           Ready to transform your health? Book a consultation at CosmeSurge clinics or reach out for media inquiries.
+                         </p>
+                         
+                         <div className="space-y-6">
+                           <div className="flex items-start gap-4">
+                              <Icons.MapPin className="text-teal-300 mt-1" />
+                              <div>
+                                <h4 className="font-bold text-lg">CosmeSurge Hospital</h4>
+                                <p className="text-teal-100 text-sm">Jumeirah, Dubai</p>
+                              </div>
+                           </div>
+                           <div className="flex items-start gap-4">
+                              <Icons.MapPin className="text-teal-300 mt-1" />
+                              <div>
+                                <h4 className="font-bold text-lg">CosmeSurge Clinic</h4>
+                                <p className="text-teal-100 text-sm">Sharjah, UAE</p>
+                              </div>
+                           </div>
+                           <div className="flex items-start gap-4">
+                              <Icons.Mail className="text-teal-300 mt-1" />
+                              <div>
+                                <h4 className="font-bold text-lg">Email</h4>
+                                <p className="text-teal-100 text-sm">Contact via LinkTree</p>
+                              </div>
+                           </div>
+                         </div>
+                       </div>
+
+                       <div className="mt-12">
+                         <p className="text-sm text-teal-300 mb-4 uppercase tracking-widest">Follow Socials</p>
+                         <div className="flex gap-4">
+                            <a href="https://www.instagram.com/dietitian_malak_?igsh=enFteGNnZmN2bHhv" className="bg-teal-600 hover:bg-teal-500 p-3 rounded-full transition-colors">
+                              <Icons.Instagram size={20} />
+                            </a>
+                            <a href="#" className="bg-teal-600 hover:bg-teal-500 p-3 rounded-full transition-colors">
+                              <Icons.Linkedin size={20} />
+                            </a>
+                         </div>
+                       </div>
+                    </div>
+
+                    {/* Form */}
+                    <div className="lg:w-3/5 p-12">
+                       <h3 className="text-2xl font-bold text-gray-800 mb-6">Send a Message</h3>
+                       <form className="space-y-6">
+                         <div className="grid md:grid-cols-2 gap-6">
+                           <div>
+                             <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                             <input type="text" className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none transition-all" placeholder="Jane Doe" />
+                           </div>
+                           <div>
+                             <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                             <input type="email" className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none transition-all" placeholder="jane@example.com" />
+                           </div>
+                         </div>
+                         
+                         <div>
+                           <label className="block text-sm font-medium text-gray-700 mb-2">Subject</label>
+                           <select className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none transition-all text-gray-600">
+                             <option>General Inquiry</option>
+                             <option>Book Consultation</option>
+                             <option>Media / Podcast Invite</option>
+                           </select>
+                         </div>
+
+                         <div>
+                           <label className="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                           <textarea rows="4" className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none transition-all" placeholder="How can we help you today?"></textarea>
+                         </div>
+
+                         <button type="button" className="bg-gray-900 text-white px-8 py-4 rounded-lg font-medium hover:bg-gray-800 transition-all w-full md:w-auto">
+                           Send Message
+                         </button>
+                       </form>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* Footer */}
+              <footer className="bg-white border-t border-gray-100 py-8">
+                <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+                  <p className="text-gray-500 text-sm">© 2024 Dt. Malak Atwat. All rights reserved.</p>
+                  <div className="flex gap-6 text-sm font-medium text-gray-500">
+                    <a href="#" className="hover:text-teal-600 transition-colors">Privacy Policy</a>
+                    <a href="#" className="hover:text-teal-600 transition-colors">Terms of Service</a>
+                  </div>
+                </div>
+              </footer>
+            </div>
+          );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<Portfolio />);
+    </script>
+</body>
+</html>
